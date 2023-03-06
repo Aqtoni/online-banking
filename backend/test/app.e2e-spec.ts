@@ -1,51 +1,104 @@
-// import { Test, TestingModule } from '@nestjs/testing';
-// import { AppModule } from '../src/app.module';
-// import * as pactum from 'pactum';
-// import { INestApplication, ValidationPipe } from '@nestjs/common';
-// import { DataSource } from 'typeorm';
-// import { TypeOrmModule } from '@nestjs/typeorm';
-// import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Test } from '@nestjs/testing';
+import { AppModule } from '../src/app.module';
+import * as pactum from 'pactum';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { DataSource } from 'typeorm';
 
-// describe('App e2e', () => {
-//   let app: INestApplication;
-//   let connection: DataSource;
+import { GlobalExceptionFilter } from 'src/filters/http-exception.filter';
+import { AuthDto } from 'src/auth/dto/auth.dto';
+import { CreateUser } from 'src/users/dto/create-user.dto ';
 
-//   describe('AppModule', () => {
-//     let app: INestApplication;
-//     let moduleFixture: TestingModule;
+describe('App e2e', () => {
+  let app: INestApplication;
+  let connection: DataSource;
 
-//     beforeAll(async () => {
-//       moduleFixture = await Test.createTestingModule({
-//         imports: [
-//           AppModule,
-//           TypeOrmModule.forRootAsync({
-//             imports: [ConfigModule],
-//             useFactory: async (configService: ConfigService) => ({
-//               type: 'postgres',
-//               host: configService.get('POSTGRES_HOST'),
-//               port: configService.get('POSTGRES_PORT'),
-//               username: configService.get('POSTGRES_USER'),
-//               password: configService.get('POSTGRES_PASSWORD'),
-//               database: configService.get('POSTGRES_DB'),
-//               entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-//               synchronize: true,
-//             }),
-//             inject: [ConfigService],
-//           }),
-//         ],
-//       }).compile();
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
 
-//       app = moduleFixture.createNestApplication();
-//       await app.init();
-//     });
+    app = moduleRef.createNestApplication();
+    app.useGlobalFilters(new GlobalExceptionFilter());
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+    await app.init();
 
-//     afterAll(async () => {
-//       await app.close();
-//       await moduleFixture.close();
-//     });
+    await app.listen(3333);
+    pactum.request.setBaseUrl('http://localhost:3333');
+  });
 
-//     it('should be defined', () => {
-//       expect(app).toBeDefined();
-//     });
-//   });
-// });
+  afterAll(async () => {
+    await app.close();
+  });
+
+  describe('auth', () => {
+    const dto: CreateUser = {
+      firstName: 'Anton',
+      lastName: 'Kovtun',
+      email: 'Super34@example.com',
+      password: '0123456789',
+      balance: 100,
+    };
+    describe('Signup', () => {
+      it('should throw if email empty', () => {
+        return pactum
+          .spec()
+          .post('/auth/signup')
+          .withBody({
+            password: dto.password,
+          })
+          .expectStatus(400);
+      });
+      it('should throw if no body provided', () => {
+        return pactum.spec().post('/auth/signup').expectStatus(400);
+      });
+      it('should throw if password empty', () => {
+        return pactum
+          .spec()
+          .post('/auth/signup')
+          .withBody({
+            email: dto.email,
+          })
+          .expectStatus(400);
+      });
+      it('should signup', () => {
+        return pactum
+          .spec()
+          .post('/auth/signup')
+          .withBody(dto)
+          .expectStatus(201);
+      });
+    });
+    describe('Login', () => {
+      it('should throw if email empty', () => {
+        return pactum
+          .spec()
+          .post('/auth/login')
+          .withBody({
+            password: dto.password,
+          })
+          .expectStatus(400);
+      });
+      it('should throw if password empty', () => {
+        return pactum
+          .spec()
+          .post('/auth/login')
+          .withBody({
+            email: dto.email,
+          })
+          .expectStatus(400);
+      });
+      it('should throw if no body provided', () => {
+        return pactum.spec().post('/auth/login').expectStatus(400);
+      });
+      it('should login', () => {
+        return pactum
+          .spec()
+          .post('/auth/login')
+          .withBody(dto)
+          .expectStatus(200)
+          .stores('userAt', 'access_token') // Get the access token from the body and store it variable
+          .inspect();
+      });
+    });
+  });
+});

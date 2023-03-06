@@ -66,7 +66,6 @@ How to install webhook, you need get you on url, can use this site.
 [webhook](https://webhook.site/)
 
 And change url. Code located is "transaction.service.ts"
-Or you can run webhook locally and the console will show information during the transaction.
 ```
 const webhookUrl = 'http://localhost:5405/webhook/transactions';
 Example: const webhookUrl = 'https://webhook.site/bd9781a3-9142-4f56-b66e-496cea1628f6'
