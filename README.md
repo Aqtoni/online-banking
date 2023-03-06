@@ -58,7 +58,7 @@ All the most interesting is in the documentation. 📗
 
 ## API Usage
 
-You can use [Swagger](http://localhost/api) on this link.
+You can run app and use `Swagger` on this link http://localhost/api.
 Check [Online-Banking API Documentation](https://documenter.getpostman.com/view/25263444/2s93CUJAAj) for more info.
 
 How to install webhook, you need get you on url, can use this site.
