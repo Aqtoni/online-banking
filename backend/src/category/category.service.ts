@@ -1,15 +1,12 @@
-import {
-  Injectable,
-  HttpException,
-  HttpStatus,
-  BadRequestException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Category } from './entity/category.entuty';
-import { updateCategoryDto } from './dto/update-category.dto ';
+import { Category } from './entity/category.entity';
+import { UpdateCategoryDto } from './dto/update-category.dto ';
 import { CreateCategoryDto } from './dto/create-category.dto ';
+import { AlreadyExistsException } from 'src/filters/already-exists';
+import { CannotDeleteException } from 'src/filters/cannot-delete';
+import { NotFindException } from 'src/filters/not-found';
 
 @Injectable()
 export class CategoriesService {
@@ -23,62 +20,37 @@ export class CategoriesService {
       return this.categoriesRepository.save(dto);
     } catch (error) {
       if (error.code === '23505') {
-        throw new HttpException(
-          'Category name already exists',
-          HttpStatus.BAD_REQUEST,
+        throw new AlreadyExistsException(
+          'Category with this name already exists',
         );
       }
-      throw new HttpException(
-        'Failed to create category',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw error;
     }
   }
 
   async getAllCategories(): Promise<Category[]> {
-    try {
-      return this.categoriesRepository.find();
-    } catch (error) {
-      throw new HttpException(
-        'Failed to retrieve categories',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return this.categoriesRepository.find();
   }
 
   async getCategoryById(id: number): Promise<Category> {
-    try {
-      const category = await this.categoriesRepository.findOne({
-        where: { id },
-      });
-      if (!category) {
-        throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
-      }
-      return category;
-    } catch (error) {
-      throw new HttpException(
-        'Failed to retrieve category',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+    const category = await this.categoriesRepository.findOne({
+      where: { id },
+    });
+    if (!category) {
+      throw new NotFindException('Category not found');
     }
+    return category;
   }
 
-  async updateCategory(id: number, dto: updateCategoryDto): Promise<Category> {
-    try {
-      const category = await this.categoriesRepository.findOne({
-        where: { id },
-      });
-      if (!category) {
-        throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
-      }
-      const updatedCategory = Object.assign(category, dto);
-      return this.categoriesRepository.save(updatedCategory);
-    } catch (error) {
-      throw new HttpException(
-        'Failed to update category',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+  async updateCategory(id: number, dto: UpdateCategoryDto): Promise<Category> {
+    const category = await this.categoriesRepository.findOne({
+      where: { id },
+    });
+    if (!category) {
+      throw new NotFindException('Category not found');
     }
+    const updatedCategory = Object.assign(category, dto);
+    return this.categoriesRepository.save(updatedCategory);
   }
 
   async deleteCategory(id: number): Promise<void> {
@@ -87,17 +59,15 @@ export class CategoriesService {
         where: { id },
       });
       if (!category) {
-        throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
+        throw new NotFindException('Category not found');
       }
 
       await this.categoriesRepository.remove(category);
     } catch (error) {
       if (error.code === '23503') {
-        throw new BadRequestException(
-          'Cannot delete category with associated transactions',
-        );
+        throw new CannotDeleteException();
       }
-      throw new InternalServerErrorException('Failed to delete category');
+      throw error;
     }
   }
 }

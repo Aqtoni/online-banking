@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreateBankDto {
-  @ApiProperty({ example: 'Bank', description: 'The bank name' })
+  @ApiProperty({ example: 'Bank', description: 'The bank name', minLength: 3 })
+  @MinLength(3)
   @IsString()
   name: string;
 

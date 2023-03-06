@@ -43,7 +43,7 @@ export class Users {
   @Column()
   @IsNotEmpty()
   @MinLength(10)
-  password: string;
+  hash: string;
 
   @ApiProperty({
     example: 1000,

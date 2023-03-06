@@ -1,15 +1,12 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
-import { Banks } from './entity/banks.entuty';
+import { Injectable } from '@nestjs/common';
+import { Banks } from './entity/banks.entity';
 import { CreateBankDto } from './dto/create-bank.dto';
-import { updateBankDto } from './dto/update-bank.dto ';
+import { UpdateBankDto } from './dto/update-bank.dto ';
+import { AlreadyExistsException } from 'src/filters/already-exists';
+import { CannotDeleteException } from 'src/filters/cannot-delete';
+import { NotFindException } from 'src/filters/not-found';
 
 @Injectable()
 export class BanksService {
@@ -23,58 +20,38 @@ export class BanksService {
       return await this.banksRepository.save(dto);
     } catch (error) {
       if (error.code === '23505') {
-        throw new HttpException(
-          'Bank with this name already exists',
-          HttpStatus.CONFLICT,
-        );
+        throw new AlreadyExistsException('Bank with this name already exists');
       }
-      throw new HttpException(
-        'Failed to create bank',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw error;
     }
   }
 
   async getAllBanks(): Promise<Banks[]> {
-    try {
-      return await this.banksRepository.find();
-    } catch (error) {
-      throw new HttpException(
-        'Failed to retrieve banks',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return await this.banksRepository.find();
   }
 
   async getBankById(id: number): Promise<Banks> {
-    try {
-      const bank = await this.banksRepository.findOne({ where: { id } });
-      if (!bank) {
-        throw new HttpException('Bank not found', HttpStatus.NOT_FOUND);
-      }
-      return bank;
-    } catch (error) {
-      throw new HttpException(
-        'Failed to retrieve bank',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+    const bank = await this.banksRepository.findOne({ where: { id } });
+    if (!bank) {
+      throw new NotFindException('Bank not found');
     }
+    return bank;
   }
 
-  async updateBank(id: number, dto: updateBankDto): Promise<Banks> {
+  async updateBank(id: number, dto: UpdateBankDto): Promise<Banks> {
     try {
       const bank = await this.banksRepository.findOne({ where: { id } });
       if (!bank) {
-        throw new HttpException('Bank not found', HttpStatus.NOT_FOUND);
+        throw new NotFindException('Bank not found');
       }
 
       const updatedBank = Object.assign(bank, dto);
-      return this.banksRepository.save(updatedBank);
+      return await this.banksRepository.save(updatedBank);
     } catch (error) {
-      throw new HttpException(
-        'Failed to update bank',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      if (error.code === '23505') {
+        throw new AlreadyExistsException('Bank with this name already exists');
+      }
+      throw error;
     }
   }
 
@@ -82,17 +59,15 @@ export class BanksService {
     try {
       const bank = await this.banksRepository.findOne({ where: { id } });
       if (!bank) {
-        throw new HttpException('Bank not found', HttpStatus.NOT_FOUND);
+        throw new NotFindException('Bank not found');
       }
 
       await this.banksRepository.remove(bank);
     } catch (error) {
       if (error.code === '23503') {
-        throw new BadRequestException(
-          'Cannot delete bank with associated transactions',
-        );
+        throw new CannotDeleteException();
       }
-      throw new InternalServerErrorException('Failed to delete bank');
+      throw error;
     }
   }
 }

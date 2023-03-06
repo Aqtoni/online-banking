@@ -7,9 +7,10 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { Users } from './entity/users.entuty';
+import { Users } from './entity/users.entity';
 import { UpdateUserDto } from './dto/update-user.dto ';
 import { CreateUser } from './dto/create-user.dto ';
 import {
@@ -19,6 +20,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { JwtGuard } from 'src/auth/guard/jwt.guard';
 
 @ApiTags('users')
 @Controller('users')
@@ -39,6 +41,7 @@ export class UsersController {
   }
 
   @Get(':id')
+  @UseGuards(JwtGuard)
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Get user by id',

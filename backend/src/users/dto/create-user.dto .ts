@@ -9,14 +9,24 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUser {
-  @ApiProperty({ example: 'Anton', description: 'The first name of the user' })
+  @ApiProperty({
+    example: 'Anton',
+    description: 'The first name of the user',
+    minLength: 3,
+  })
   @IsString()
   @IsNotEmpty()
+  @MinLength(3)
   firstName: string;
 
-  @ApiProperty({ example: 'Kovtun', description: 'The last name of the user' })
+  @ApiProperty({
+    example: 'Kovtun',
+    description: 'The last name of the user',
+    minLength: 3,
+  })
   @IsString()
   @IsNotEmpty()
+  @MinLength(3)
   lastName: string;
 
   @ApiProperty({

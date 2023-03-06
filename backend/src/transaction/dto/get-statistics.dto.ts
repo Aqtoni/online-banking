@@ -11,7 +11,7 @@ export class StatisticsRequestDto {
   categoryIds: number[];
 
   @ApiProperty({
-    example: '2022-01-01T00:00:00.000Z',
+    example: '2023-03-01T00:00:00',
     description: 'The start date of the period to filter',
   })
   @IsNotEmpty()
@@ -19,7 +19,7 @@ export class StatisticsRequestDto {
   fromPeriod: string;
 
   @ApiProperty({
-    example: '2022-01-31T23:59:59.999Z',
+    example: '2023-03-31T23:59:59',
     description: 'The end date of the period to filter',
   })
   @IsNotEmpty()

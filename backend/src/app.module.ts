@@ -5,8 +5,11 @@ import { UsersModule } from './users/users.module';
 import { BanksModule } from './banks/banks.module';
 import { CategoryModule } from './category/category.module';
 import { TransactionModule } from './transaction/transaction.module';
-import { WebhookModule } from './webhook/webhook.module';
 import { SwaggerModule } from '@nestjs/swagger';
+
+import { APP_FILTER } from '@nestjs/core';
+import { GlobalExceptionFilter } from './filters/http-exception.filter';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -32,9 +35,14 @@ import { SwaggerModule } from '@nestjs/swagger';
     BanksModule,
     CategoryModule,
     TransactionModule,
-    WebhookModule,
+    AuthModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
+  ],
 })
 export class AppModule {}

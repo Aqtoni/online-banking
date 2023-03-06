@@ -7,9 +7,10 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
-import { Transaction } from './entity/transaction.entuty';
+import { Transaction } from './entity/transaction.entity';
 import { StatisticsRequestDto } from './dto/get-statistics.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import {
@@ -20,9 +21,11 @@ import {
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { JwtGuard } from 'src/auth/guard/jwt.guard';
 
 @ApiTags('transaction')
 @Controller('transaction')
+@UseGuards(JwtGuard)
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
@@ -57,7 +60,7 @@ export class TransactionController {
     return this.transactionService.findAll(page, limit);
   }
 
-  @Get('/statistics')
+  @Get('statistics')
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Get statistics of transaction',

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Banks } from 'src/banks/entity/banks.entuty';
-import { Category } from 'src/category/entity/category.entuty';
+import { Banks } from 'src/banks/entity/banks.entity';
+import { Category } from 'src/category/entity/category.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,

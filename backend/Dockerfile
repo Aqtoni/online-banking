@@ -7,5 +7,5 @@ RUN yarn
 FROM node:14-alpine
 WORKDIR /app
 COPY --from=builder /app ./
-EXPOSE 3001
+EXPOSE 3000
 CMD ["yarn", "run", "start:dev"]

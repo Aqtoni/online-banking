@@ -10,8 +10,8 @@ import {
 } from '@nestjs/common';
 
 import { BanksService } from './banks.service';
-import { Banks } from './entity/banks.entuty';
-import { updateBankDto } from './dto/update-bank.dto ';
+import { Banks } from './entity/banks.entity';
+import { UpdateBankDto } from './dto/update-bank.dto ';
 import { CreateBankDto } from './dto/create-bank.dto';
 import {
   ApiConflictResponse,
@@ -76,7 +76,7 @@ export class BanksController {
   @ApiInternalServerErrorResponse({ description: 'Failed to update bank' })
   async updateBank(
     @Param('id') id: number,
-    @Body() dto: updateBankDto,
+    @Body() dto: UpdateBankDto,
   ): Promise<Banks> {
     return this.banksService.updateBank(id, dto);
   }

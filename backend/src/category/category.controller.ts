@@ -9,8 +9,8 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { CategoriesService } from './category.service';
-import { Category } from './entity/category.entuty';
-import { updateCategoryDto } from './dto/update-category.dto ';
+import { Category } from './entity/category.entity';
+import { UpdateCategoryDto } from './dto/update-category.dto ';
 import { CreateCategoryDto } from './dto/create-category.dto ';
 import {
   ApiBadRequestResponse,
@@ -75,7 +75,7 @@ export class CategoriesController {
   @ApiInternalServerErrorResponse({ description: 'Failed to update category' })
   async updateCategory(
     @Param('id') id: number,
-    @Body() dto: updateCategoryDto,
+    @Body() dto: UpdateCategoryDto,
   ): Promise<Category> {
     return this.categoriesService.updateCategory(id, dto);
   }

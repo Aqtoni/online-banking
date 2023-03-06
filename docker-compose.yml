@@ -31,6 +31,7 @@ services:
       - TYPEORM_DATABASE=${TYPEORM_DATABASE}
       - TYPEORM_PORT=${TYPEORM_PORT}
       - TYPEORM_HOST=db
+      - JWT_SECRET=${JWT_SECRET}
   webhook-service:
     container_name: webhook
     build:
