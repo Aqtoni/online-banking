@@ -1,4 +1,4 @@
-# NestJS Swagger PostgreSQL TypeORM Docker
+# NestJS Prisma PostgreSQL TypeORM Docker
 
 A Backend application based on NestJS, where PostgreSQL acts as a database to control the base
 TypeORM is used. All this is packed in Docker-Compose.
