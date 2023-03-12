@@ -1,4 +1,4 @@
-# NestJS Prisma PostgreSQL TypeORM Docker
+# NestJS Swagger PostgreSQL TypeORM Docker
 
 A Backend application based on NestJS, where PostgreSQL acts as a database to control the base
 TypeORM is used. All this is packed in Docker-Compose.
@@ -54,7 +54,7 @@ All the most interesting is in the documentation. 📗
   - All transactions come to a separate webhook
 - User
   - Create user, and update update and more.
-- Swagger documentation
+- Swagger documentation 
 
 ## API Usage
 
@@ -66,7 +66,6 @@ How to install webhook, you need get you on url, can use this site.
 [webhook](https://webhook.site/)
 
 And change url. Code located is "transaction.service.ts"
-
 ```
 const webhookUrl = 'http://localhost:5405/webhook/transactions';
 Example: const webhookUrl = 'https://webhook.site/bd9781a3-9142-4f56-b66e-496cea1628f6'
@@ -97,9 +96,7 @@ docker-compose up
 # -d - For launch in the background
 # --build - for build containers
 ```
-
 ### Without Docker
-
 - Install postgreSQL with an official [site](https://www.postgresql.org/)
 - Create a server copy and database, add the user and password as indicated in the .env file
 - Make sure PostgreSQL is launched and works
