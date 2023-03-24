@@ -53,8 +53,10 @@ All the most interesting is in the documentation. 📗
   - There is also a choice of banks.
   - All transactions come to a separate webhook
 - User
-  - Create user, and update update and more.
-- Swagger documentation 
+  - Create user, and update update and more. 
+- Caching
+- Rate Limiting
+- Swagger documentation
 
 ## API Usage
 
@@ -67,8 +69,8 @@ How to install webhook, you need get you on url, can use this site.
 
 And change url. Code located is "transaction.service.ts"
 ```
-const webhookUrl = 'http://localhost:5405/webhook/transactions';
-Example: const webhookUrl = 'https://webhook.site/bd9781a3-9142-4f56-b66e-496cea1628f6'
+const webhookUrl = '';
+Example: 'https://webhook.site/1111111109'
 ```
 
 ## Installation and launch method
@@ -76,15 +78,19 @@ Example: const webhookUrl = 'https://webhook.site/bd9781a3-9142-4f56-b66e-496cea
 Create a repository at the root .env file, for example:
 
 ```dotenv
-API_PORT=3000
-API_HOST=http://localhost:
+API_PORT=3001
 TYPEORM_CONNECTION=postgres
-TYPEORM_USERNAME=admin
-TYPEORM_PASSWORD=admin
-TYPEORM_DATABASE=Bank
 TYPEORM_PORT=5432
-TYPEORM_HOST=localhost
+TYPEORM_HOST=postgres
+POSTGRES_USER=admin
+POSTGRES_PASSWORD=admin
+POSTGRES_DB=Bank
+PGADMIN_DEFAULT_EMAIL=admin@admin.com
+PGADMIN_DEFAULT_PASSWORD=pgadmin
 JWT_SECRET='you-secret'
+JWT_EXPIRATION_TIME=600
+THROTTLE_TTL=60
+THROTTLE_LIMIT=20
 ```
 
 ### Using Docker
@@ -105,7 +111,6 @@ docker-compose up
 ### Backend
 
 ```shell
-cd backend/ do the same in  cd webhook-service/
 
 # yarn package manager
 yarn install

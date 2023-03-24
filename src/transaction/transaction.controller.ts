@@ -25,7 +25,7 @@ import { JwtGuard } from 'src/auth/guard/jwt.guard';
 
 @ApiTags('transaction')
 @Controller('transaction')
-@UseGuards(JwtGuard)
+// @UseGuards(JwtGuard)
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 

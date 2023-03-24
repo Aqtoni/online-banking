@@ -57,8 +57,8 @@ export class TransactionService {
 
     await this.banksRepository.save(bank);
 
-    const webhookUrl = 'http://localhost:5405/webhook/transactions';
-    //https://webhook.site/bd9781a3-9142-4f56-b66e-496cea1628f6 Example:
+    const webhookUrl =
+      'https://webhook.site/e8f3a95b-9af0-44a8-8c65-f27219a4aaf1';
     const plainTransaction = classToPlain(transaction);
 
     try {

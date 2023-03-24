@@ -27,8 +27,20 @@ export class BanksService {
   }
 
   async getAllBanks(): Promise<Banks[]> {
-    return await this.banksRepository.find();
+    return new Promise((resolve, reject) => {
+      setTimeout(async () => {
+        try {
+          const banks = await this.banksRepository.find();
+          resolve(banks);
+        } catch (error) {
+          reject(error);
+        }
+      }, 3000);
+    });
   }
+  // async getAllBanks(): Promise<Banks[]> {
+  //   return await this.banksRepository.find();
+  // }
 
   async getBankById(id: number): Promise<Banks> {
     const bank = await this.banksRepository.findOne({ where: { id } });
