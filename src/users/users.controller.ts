@@ -20,7 +20,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtGuard } from 'src/auth/guard/jwt.guard';
 
 @ApiTags('users')
 @Controller('users')
@@ -41,7 +40,6 @@ export class UsersController {
   }
 
   @Get(':id')
-  @UseGuards(JwtGuard)
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Get user by id',
@@ -55,17 +53,17 @@ export class UsersController {
     return this.usersService.getUserById(id);
   }
 
-  @Post()
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Create a new user',
-    type: Users,
-  })
-  @ApiConflictResponse({ description: 'Email already exists' })
-  @ApiInternalServerErrorResponse({ description: 'Failed to create user' })
-  async createUser(@Body() dto: CreateUser): Promise<Users> {
-    return this.usersService.createUser(dto);
-  }
+  // @Post()
+  // @ApiResponse({
+  //   status: HttpStatus.CREATED,
+  //   description: 'Create a new user',
+  //   type: Users,
+  // })
+  // @ApiConflictResponse({ description: 'Email already exists' })
+  // @ApiInternalServerErrorResponse({ description: 'Failed to create user' })
+  // async createUser(@Body() dto: CreateUser): Promise<Users> {
+  //   return this.usersService.createUser(dto);
+  // }
 
   @Patch(':id')
   @ApiResponse({

@@ -1,10 +1,10 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from './entity/users.entity';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto ';
-import { CreateUser } from './dto/create-user.dto ';
-import { AlreadyExistsException } from 'src/filters/already-exists';
+// import { CreateUser } from './dto/create-user.dto ';
+// import { AlreadyExistsException } from 'src/filters/already-exists';
 import { NotFindException } from 'src/filters/not-found';
 
 @Injectable()
@@ -14,16 +14,16 @@ export class UsersService {
     private usersRepository: Repository<Users>,
   ) {}
 
-  async createUser(dto: CreateUser): Promise<Users> {
-    try {
-      return await this.usersRepository.save(dto);
-    } catch (error) {
-      if (error.code === '23505') {
-        throw new AlreadyExistsException('Email with this name already exists');
-      }
-      throw error;
-    }
-  }
+  // async createUser(dto: CreateUser): Promise<Users> {
+  //   try {
+  //     return await this.usersRepository.save(dto);
+  //   } catch (error) {
+  //     if (error.code === '23505') {
+  //       throw new AlreadyExistsException('Email with this name already exists');
+  //     }
+  //     throw error;
+  //   }
+  // }
 
   async getAllUsers(): Promise<Users[]> {
     return await this.usersRepository.find();

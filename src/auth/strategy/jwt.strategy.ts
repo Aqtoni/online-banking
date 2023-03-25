@@ -11,21 +11,35 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
     @InjectRepository(Users)
     private usersRepository: Repository<Users>,
-    config: ConfigService,
+    private readonly config: ConfigService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: config.get('JWT_SECRET'),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request: any) => {
+          let token = null;
+          if (request?.headers?.cookie) {
+            const cookies = request.headers.cookie.split(';');
+            const tokenCookie = cookies.find((cookie) =>
+              cookie.trim().startsWith('token='),
+            );
+            if (tokenCookie) {
+              token = tokenCookie.split('=')[1];
+            }
+          }
+          return token;
+        },
+      ]),
+      secretOrKey: config.get<string>('JWT_ACCESS_TOKEN_SECRET'),
     });
   }
-
-  async validate(payload: { sub: number; email: string }) {
+  async validate(payload: { userId: number; email: string }) {
     const user = await this.usersRepository.findOne({
       where: {
-        id: payload.sub,
+        id: payload.userId,
+        email: payload.email,
       },
     });
-    delete user.hash;
+    delete user.password;
     return user;
   }
 }

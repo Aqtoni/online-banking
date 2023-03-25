@@ -13,6 +13,7 @@ import axios from 'axios';
 import { classToPlain } from 'class-transformer';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { NotFindException } from 'src/filters/not-found';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class TransactionService {
@@ -23,6 +24,7 @@ export class TransactionService {
     private banksRepository: Repository<Banks>,
     @InjectRepository(Category)
     private categoriesRepository: Repository<Category>,
+    private config: ConfigService,
   ) {}
 
   async createTransaction(dto: CreateTransactionDto): Promise<Transaction> {
@@ -57,8 +59,7 @@ export class TransactionService {
 
     await this.banksRepository.save(bank);
 
-    const webhookUrl =
-      'https://webhook.site/e8f3a95b-9af0-44a8-8c65-f27219a4aaf1';
+    const webhookUrl = this.config.get<string>('WEBHOOK');
     const plainTransaction = classToPlain(transaction);
 
     try {

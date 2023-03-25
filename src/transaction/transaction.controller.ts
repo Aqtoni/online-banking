@@ -21,11 +21,11 @@ import {
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { JwtGuard } from 'src/auth/guard/jwt.guard';
+import JwtAuthGuard from 'src/auth/guard/jwt-auth.guard';
 
 @ApiTags('transaction')
 @Controller('transaction')
-// @UseGuards(JwtGuard)
+@UseGuards(JwtAuthGuard)
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 

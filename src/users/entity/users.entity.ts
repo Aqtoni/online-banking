@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, MinLength } from 'class-validator';
+import { Exclude } from 'class-transformer';
+import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 import {
   Entity,
   Column,
@@ -43,7 +44,26 @@ export class Users {
   @Column()
   @IsNotEmpty()
   @MinLength(10)
-  hash: string;
+  @Exclude()
+  password: string;
+
+  @ApiProperty({
+    example: 'This a secret 😏',
+    description: 'The refresh tokens in the database',
+  })
+  @Column({
+    nullable: true,
+  })
+  @Exclude()
+  currentHashedRefreshToken?: string;
+
+  @ApiProperty({
+    example: '+123123123123',
+    description: 'Has to match a regular expression: /^\\+[1-9]\\d{1,14}$/',
+  })
+  @IsString()
+  @IsNotEmpty()
+  phoneNumber: string;
 
   @ApiProperty({
     example: 1000,
@@ -53,14 +73,14 @@ export class Users {
   balance: number;
 
   @ApiProperty({
-    example: '2022-01-01T00:00:00.000Z',
+    example: '2023-01-01T00:00:00',
     description: 'The date and time the user was created',
   })
   @CreateDateColumn()
   createdAt: Date;
 
   @ApiProperty({
-    example: '2022-02-01T00:00:00.000Z',
+    example: '2023-02-01T00:00:00',
     description: 'The date and time the user was last updated',
   })
   @UpdateDateColumn()

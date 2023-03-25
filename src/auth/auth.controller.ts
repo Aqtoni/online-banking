@@ -1,4 +1,12 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
   ApiConflictResponse,
@@ -8,15 +16,18 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Users } from 'src/users/entity/users.entity';
-import { CreateUser } from 'src/users/dto/create-user.dto ';
-import { AuthDto } from './dto/auth.dto';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/logIn.dto';
+import { Response } from 'express';
+import { LocalAuthGuard } from './guard/local-auth.guard';
+import JwtAuthGuard from './guard/jwt-auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('signup')
+  @Post('register')
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Create a new user',
@@ -24,8 +35,9 @@ export class AuthController {
   })
   @ApiConflictResponse({ description: 'Email already exists' })
   @ApiInternalServerErrorResponse({ description: 'Failed to create user' })
-  async signup(@Body() dto: CreateUser) {
-    return await this.authService.signup(dto);
+  async signup(@Body() dto: RegisterDto, @Res() res: Response) {
+    await this.authService.signup(dto, res);
+    res.send();
   }
 
   @ApiResponse({
@@ -35,8 +47,22 @@ export class AuthController {
   })
   @ApiForbiddenResponse({ description: 'Incorrect email or password' })
   @HttpCode(HttpStatus.OK)
+  @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Body() dto: AuthDto) {
-    return await this.authService.login(dto);
+  async login(@Body() dto: LoginDto, @Res() res: Response) {
+    await this.authService.login(dto, res);
+    res.send();
+  }
+
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Log out',
+    type: Users,
+  })
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  async logout(@Res() res: Response) {
+    await this.authService.logout(res);
+    res.send();
   }
 }

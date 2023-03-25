@@ -63,15 +63,9 @@ All the most interesting is in the documentation. 📗
 You can run app and use `Swagger` on this link http://localhost/api.
 Check [Online-Banking API Documentation](https://documenter.getpostman.com/view/25263444/2s93CUJAAj) for more info.
 
-How to install webhook, you need get you on url, can use this site.
+How to install webhook, you need get you on url, can use this site. And set the link.
 [ngrok](https://ngrok.com/)
 [webhook](https://webhook.site/)
-
-And change url. Code located is "transaction.service.ts"
-```
-const webhookUrl = '';
-Example: 'https://webhook.site/1111111109'
-```
 
 ## Installation and launch method
 
@@ -91,6 +85,7 @@ JWT_SECRET='you-secret'
 JWT_EXPIRATION_TIME=600
 THROTTLE_TTL=60
 THROTTLE_LIMIT=20
+WEBHOOK=your-webhook-link
 ```
 
 ### Using Docker

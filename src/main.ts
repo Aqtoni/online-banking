@@ -5,11 +5,13 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { GlobalExceptionFilter } from './filters/http-exception.filter';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const logger = new Logger();
   const nestApp = await NestFactory.create(AppModule, { cors: true });
   nestApp.setGlobalPrefix('v1');
+  nestApp.use(cookieParser());
   const config = new DocumentBuilder()
     .setTitle('OnlineBanking API')
     .setDescription('Super easy online banking API 💵')

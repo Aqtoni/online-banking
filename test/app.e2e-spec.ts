@@ -3,10 +3,8 @@ import { AppModule } from '../src/app.module';
 import * as pactum from 'pactum';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-
 import { GlobalExceptionFilter } from 'src/filters/http-exception.filter';
-import { AuthDto } from 'src/auth/dto/auth.dto';
-import { CreateUser } from 'src/users/dto/create-user.dto ';
+import { RegisterDto } from 'src/auth/dto/register.dto';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -31,12 +29,12 @@ describe('App e2e', () => {
   });
 
   describe('auth', () => {
-    const dto: CreateUser = {
+    const dto: RegisterDto = {
       firstName: 'Anton',
       lastName: 'Kovtun',
       email: 'Super34@example.com',
       password: '0123456789',
-      balance: 100,
+      phoneNumber: '+123123123123',
     };
     describe('Signup', () => {
       it('should throw if email empty', () => {

@@ -1,13 +1,14 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AlreadyExistsException } from 'src/filters/already-exists';
-import { CreateUser } from 'src/users/dto/create-user.dto ';
 import { Users } from 'src/users/entity/users.entity';
 import { Repository } from 'typeorm';
-import * as argon from 'argon2';
-import { AuthDto } from './dto/auth.dto';
+import * as bcrypt from 'bcrypt';
+import { LoginDto } from './dto/logIn.dto';
+import { RegisterDto } from './dto/register.dto';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -18,16 +19,17 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
-  async signup(dto: CreateUser) {
+  async signup(dto: RegisterDto, res: Response) {
     try {
-      const hash = await argon.hash(dto.password);
-
-      const user = await this.usersRepository.save({
+      const hashedPassword = await bcrypt.hash(dto.password, 10);
+      const user = await this.usersRepository.create({
         ...dto,
-        hash: hash,
+        password: hashedPassword,
       });
-
-      return await this.signToken(user.id, user.email);
+      await this.usersRepository.save(user);
+      const payload = { userId: user.id, email: dto.email };
+      const token = this.jwt.sign(payload);
+      res.cookie('token', token, { httpOnly: true, sameSite: 'strict' });
     } catch (error) {
       if (error.code === '23505') {
         throw new AlreadyExistsException('Email with this name already exists');
@@ -36,36 +38,27 @@ export class AuthService {
     }
   }
 
-  async login(dto: AuthDto) {
-    const user = await this.usersRepository.findOne({
-      where: {
-        email: dto.email,
-      },
-    });
-    if (!user) throw new ForbiddenException('Incorrect email or password');
-
-    const pwMatches = await argon.verify(user.hash, dto.password);
-
-    if (!pwMatches) throw new ForbiddenException('Incorrect email or password');
-
-    return this.signToken(user.id, user.email);
+  async login(dto: LoginDto, res: Response) {
+    const user = await this.validateUser(dto.email, dto.password);
+    const payload = { userId: user.id, email: dto.email };
+    const token = this.jwt.sign(payload);
+    res.cookie('token', token, { httpOnly: true, sameSite: 'strict' });
   }
 
-  async signToken(
-    userId: number,
-    email: string,
-  ): Promise<{ access_token: string }> {
-    const payload = { sub: userId, email };
+  logout(res: Response) {
+    res.clearCookie('token');
+  }
 
-    const secret = this.config.get<string>('JWT_SECRET');
-
-    const token = await this.jwt.signAsync(payload, {
-      expiresIn: '10m',
-      secret: secret,
-    });
-
-    return {
-      access_token: token,
-    };
+  async validateUser(email: string, password: string) {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    // console.log(user, 'auth');
+    if (!user) {
+      throw new UnauthorizedException('Incorrect email or password.');
+    }
+    const passwordIsValid = await bcrypt.compare(password, user.password);
+    if (!passwordIsValid) {
+      throw new UnauthorizedException('Incorrect email or password.');
+    }
+    return user;
   }
 }
