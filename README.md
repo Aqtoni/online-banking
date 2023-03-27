@@ -29,7 +29,7 @@ All the most interesting is in the documentation. 📗
     </td>
     <td align="center" valign="middle" width="17%">
       <a href="https://www.docker.com/">
-      <img height="50" alt="Docker" src="https://d1.awsstatic.com/acs/characters/Logos/Docker-Logo_Horizontel_279x131.b8a5c41e56b77706656d61080f6a0217a3ba356d.png"/>
+      <img height="50" alt="Docker" src="https://www.docker.com/wp-content/uploads/2022/03/Moby-logo.png"/>
       </a>
       <br />
       Docker
@@ -48,6 +48,8 @@ All the most interesting is in the documentation. 📗
 
 - Authentication and Authorization
   - Login
+  - Logout
+  - Access and refresh Token
 - Transaction
   - Create a transaction and choose the category name and type of the transaction
   - There is also a choice of banks.

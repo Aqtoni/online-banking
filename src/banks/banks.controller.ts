@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 
 import { BanksService } from './banks.service';
@@ -21,12 +22,14 @@ import {
   ApiTags,
   ApiBadRequestResponse,
 } from '@nestjs/swagger';
+import JwtRefreshGuard from 'src/auth/guard/jwt-refresh.guard';
 
 @ApiTags('banks')
 @Controller('banks')
 export class BanksController {
   constructor(private readonly banksService: BanksService) {}
 
+  @UseGuards(JwtRefreshGuard)
   @Get()
   @ApiResponse({
     status: HttpStatus.OK,

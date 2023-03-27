@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -21,6 +22,7 @@ import { LoginDto } from './dto/logIn.dto';
 import { Response } from 'express';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import JwtAuthGuard from './guard/jwt-auth.guard';
+import { CurrentUser } from './decorator/get-user.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -31,7 +33,7 @@ export class AuthController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Create a new user',
-    type: Users,
+    type: RegisterDto,
   })
   @ApiConflictResponse({ description: 'Email already exists' })
   @ApiInternalServerErrorResponse({ description: 'Failed to create user' })
@@ -43,11 +45,11 @@ export class AuthController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Log in',
-    type: Users,
+    type: LoginDto,
   })
   @ApiForbiddenResponse({ description: 'Incorrect email or password' })
-  @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
+  @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(@Body() dto: LoginDto, @Res() res: Response) {
     await this.authService.login(dto, res);
@@ -60,9 +62,21 @@ export class AuthController {
     type: Users,
   })
   @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
   @Post('logout')
-  async logout(@Res() res: Response) {
-    await this.authService.logout(res);
+  async logout(@CurrentUser() user: Users, @Res() res: Response) {
+    await this.authService.logout(user, res);
     res.send();
+  }
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Get information about user',
+    type: Users,
+  })
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getMe(@CurrentUser() user: Users) {
+    console.log(user);
+    return user;
   }
 }

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 import {
   Entity,
@@ -27,6 +27,15 @@ export class Users {
   @Column()
   @IsNotEmpty()
   lastName: string;
+
+  @ApiProperty({
+    example: 'Anton Kovtun',
+    description: 'The full name of the user',
+  })
+  @Expose({ name: 'fullName' })
+  getFullName() {
+    return this.firstName + ' ' + this.lastName;
+  }
 
   @ApiProperty({
     example: 'anton@example.com',
@@ -63,6 +72,7 @@ export class Users {
   })
   @IsString()
   @IsNotEmpty()
+  @Column()
   phoneNumber: string;
 
   @ApiProperty({
