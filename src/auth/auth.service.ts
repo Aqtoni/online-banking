@@ -45,32 +45,21 @@ export class AuthService {
   }
 
   async login(dto: LoginDto, res: Response) {
-    try {
-      const user = await this.validateUser(dto.email, dto.password);
-      const { accessToken, refreshToken } = await this.createTokenPair(
-        user.id,
-        user.email,
-      );
-      const cookie = await this.getCookieWithTokenPair(
-        accessToken,
-        refreshToken,
-      );
-      res.setHeader('Set-Cookie', cookie);
-      res.send();
-    } catch (error) {
-      throw error;
-    }
+    const user = await this.validateUser(dto.email, dto.password);
+    const { accessToken, refreshToken } = await this.createTokenPair(
+      user.id,
+      user.email,
+    );
+    const cookie = await this.getCookieWithTokenPair(accessToken, refreshToken);
+    res.setHeader('Set-Cookie', cookie);
+    res.send();
   }
 
   async logout(user: Users, res: Response) {
-    try {
-      // Better this than that res.clearCookie
-      await this.removeRefreshToken(user.id);
-      res.setHeader('Set-Cookie', await this.getCookiesForLogOut());
-      res.send();
-    } catch (error) {
-      throw error;
-    }
+    // Better this than that res.clearCookie
+    await this.removeRefreshToken(user.id);
+    res.setHeader('Set-Cookie', await this.getCookiesForLogOut());
+    res.send();
   }
 
   async validateUser(email: string, password: string): Promise<Users> {
@@ -94,65 +83,49 @@ export class AuthService {
     userId: number,
     email: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    try {
-      const accessTokenPayload: TokenPayload = { userId, email };
-      const refreshTokenPayload: TokenPayload = { userId, email };
-      const accessToken = this.jwt.sign(accessTokenPayload, {
-        secret: this.config.get('JWT_ACCESS_TOKEN_SECRET'),
-        expiresIn: this.config.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME'),
-      });
-      const refreshToken = this.jwt.sign(refreshTokenPayload, {
-        secret: this.config.get('JWT_REFRESH_TOKEN_SECRET'),
-        expiresIn: this.config.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
-      });
-      const currentHashedRefreshToken = bcrypt.hashSync(refreshToken, 10);
-      this.updateRefreshToken(userId, currentHashedRefreshToken);
-      return { accessToken, refreshToken };
-    } catch (error) {
-      throw error;
-    }
+    const accessTokenPayload: TokenPayload = { userId, email };
+    const refreshTokenPayload: TokenPayload = { userId, email };
+    const accessToken = this.jwt.sign(accessTokenPayload, {
+      secret: this.config.get('JWT_ACCESS_TOKEN_SECRET'),
+      expiresIn: this.config.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME'),
+    });
+    const refreshToken = this.jwt.sign(refreshTokenPayload, {
+      secret: this.config.get('JWT_REFRESH_TOKEN_SECRET'),
+      expiresIn: this.config.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
+    });
+    const currentHashedRefreshToken = bcrypt.hashSync(refreshToken, 10);
+    this.updateRefreshToken(userId, currentHashedRefreshToken);
+    return { accessToken, refreshToken };
   }
 
   async updateRefreshToken(userId: number, currentHashedRefreshToken: string) {
-    try {
-      await this.usersRepository.update(
-        { id: userId },
-        { currentHashedRefreshToken },
-      );
-    } catch (error) {
-      throw error;
-    }
+    await this.usersRepository.update(
+      { id: userId },
+      { currentHashedRefreshToken },
+    );
   }
 
   async removeRefreshToken(userId: number) {
-    try {
-      await this.usersRepository.update(userId, {
-        currentHashedRefreshToken: null,
-      });
-    } catch (error) {
-      throw error;
-    }
+    await this.usersRepository.update(userId, {
+      currentHashedRefreshToken: null,
+    });
   }
 
   async getUserIfRefreshTokenMatches(
     refreshToken: string,
     userId: number,
   ): Promise<Users> {
-    try {
-      const user = await this.usersRepository.findOne({
-        where: { id: userId },
-      });
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
 
-      const isRefreshTokenMatching = await bcrypt.compare(
-        refreshToken,
-        user.currentHashedRefreshToken,
-      );
+    const isRefreshTokenMatching = await bcrypt.compare(
+      refreshToken,
+      user.currentHashedRefreshToken,
+    );
 
-      if (isRefreshTokenMatching) {
-        return user;
-      }
-    } catch (error) {
-      throw error;
+    if (isRefreshTokenMatching) {
+      return user;
     }
   }
 
@@ -160,32 +133,24 @@ export class AuthService {
     accessToken: string,
     refreshToken: string,
   ): Promise<string[]> {
-    try {
-      return [
-        `${this.config.get(
-          'AUTH_COOKIE_NAME',
-        )}=${accessToken}; HttpOnly; Path=/; Max-Age=${this.config.get(
-          'JWT_ACCESS_TOKEN_EXPIRATION_TIME',
-        )}; SameSite=strict;`,
-        `${this.config.get(
-          'REFRESH_COOKIE_NAME',
-        )}=${refreshToken}; HttpOnly; Path=/; Max-Age=${this.config.get(
-          'JWT_REFRESH_TOKEN_EXPIRATION_TIME',
-        )}; SameSite=strict;`,
-      ];
-    } catch (error) {
-      throw error;
-    }
+    return [
+      `${this.config.get(
+        'AUTH_COOKIE_NAME',
+      )}=${accessToken}; HttpOnly; Path=/; Max-Age=${this.config.get(
+        'JWT_ACCESS_TOKEN_EXPIRATION_TIME',
+      )}; secure=true; SameSite=strict;`,
+      `${this.config.get(
+        'REFRESH_COOKIE_NAME',
+      )}=${refreshToken}; HttpOnly; Path=/; Max-Age=${this.config.get(
+        'JWT_REFRESH_TOKEN_EXPIRATION_TIME',
+      )}; secure=true; SameSite=strict;`,
+    ];
   }
 
   async getCookiesForLogOut(): Promise<string[]> {
-    try {
-      return [
-        'Authentication=; HttpOnly; Path=/; Max-Age=0',
-        'Refresh=; HttpOnly; Path=/; Max-Age=0',
-      ];
-    } catch (error) {
-      throw error;
-    }
+    return [
+      'Authentication=; HttpOnly; Path=/; Max-Age=0',
+      'Refresh=; HttpOnly; Path=/; Max-Age=0',
+    ];
   }
 }
