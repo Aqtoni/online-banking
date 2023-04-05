@@ -26,7 +26,11 @@ export class UsersService {
   // }
 
   async getAllUsers(): Promise<Users[]> {
-    return await this.usersRepository.find();
+    const users = await this.usersRepository.find();
+    if (!users || users.length == 0) {
+      throw new NotFindException('Users not found');
+    }
+    return users;
   }
 
   async getUserById(id: number): Promise<Users> {

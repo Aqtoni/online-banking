@@ -31,6 +31,9 @@ export class BanksService {
       setTimeout(async () => {
         try {
           const banks = await this.banksRepository.find();
+          if (!banks || banks.length == 0) {
+            throw new NotFindException('Banks not found');
+          }
           resolve(banks);
         } catch (error) {
           reject(error);

@@ -2,6 +2,8 @@
 /dist
 /node_modules
 /.env
+localhost-key.pem
+localhost.pem
 /pgdata
 # Logs
 logs

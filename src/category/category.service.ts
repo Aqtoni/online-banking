@@ -29,7 +29,11 @@ export class CategoriesService {
   }
 
   async getAllCategories(): Promise<Category[]> {
-    return this.categoriesRepository.find();
+    const categories = await this.categoriesRepository.find();
+    if (!categories || categories.length == 0) {
+      throw new NotFindException('Categories not found');
+    }
+    return categories;
   }
 
   async getCategoryById(id: number): Promise<Category> {

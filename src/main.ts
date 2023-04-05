@@ -6,10 +6,27 @@ import { GlobalExceptionFilter } from './filters/http-exception.filter';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
+import { otelSDK } from './tracing';
+import * as fs from 'fs';
 
 async function bootstrap() {
+  await otelSDK.start();
+
+  // * HTTPS
+  const httpsOptions = {
+    key: fs.readFileSync('./localhost-key.pem'),
+    cert: fs.readFileSync('./localhost.pem'),
+  };
+
+  if (!httpsOptions.key || !httpsOptions.cert) {
+    throw new Error('Failed to load HTTPS options');
+  }
   const logger = new Logger();
-  const nestApp = await NestFactory.create(AppModule, { cors: true });
+  const nestApp = await NestFactory.create(AppModule, {
+    httpsOptions,
+    cors: true,
+  });
+
   nestApp.setGlobalPrefix('v1');
   nestApp.use(cookieParser());
   const config = new DocumentBuilder()
